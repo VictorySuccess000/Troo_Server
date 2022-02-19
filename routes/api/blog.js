@@ -444,6 +444,18 @@ router.put("/edit/:id", auth, async (req, res) => {
     }
   })
 });
+router.put("/donate", auth, async (req, res) => {
+  const user = await User.findOne({ _id: req.body.userid });
+  const creator = await User.findOne({ _id: req.body.creatorid });
+  let plustcoin = Number(creator.vcoin) + Number(req.body.tcoin);
+  let newvalue = user.vcoin - req.body.tcoin;
+  User.findByIdAndUpdate(req.body.creatorid, { vcoin: Math.round(plustcoin * 100) / 100 }, function (err, result) {
+    if (err) { console.log(err); } else { console.log("Successfully sent to " + creator.pname); }
+  })
+  User.findByIdAndUpdate(req.body.userid, { vcoin: Math.round(newvalue * 100) / 100 }, function (err, result) {
+    if (err) { res.send(err) } else { res.send(result) }
+  })
+});
 router.put("/like/:id", auth, checkObjectId("id"), async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id);
